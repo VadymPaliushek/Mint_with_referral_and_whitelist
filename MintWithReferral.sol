@@ -48,7 +48,8 @@ Ownable {
         string memory _unrevealedURI) ERC721(_name, _symbol) {
         setUnrevealedURI(_unrevealedURI);
         coFounder = _coFounder;
-    
+        
+        /// @notice adds all possible IDs to mints[]. So you don't have to manually type thousands of numbers into an array
         for (uint16 i = 0; i < maxSupply; ++i) {
             mints[i] = i;
         }
