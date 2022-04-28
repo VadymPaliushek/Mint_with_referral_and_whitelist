@@ -22,13 +22,13 @@ Ownable {
 
     /// @notice edit these before launching contract
     /// @dev only ReferralRewardPercentage & costToCreateReferral is editable
-    uint8 public referralRewardPercentage = 10;
+    uint8 public referralRewardPercentage = 15;
     uint16 public nonce = 1;
     uint16 constant public maxSupply = 10000;
-    uint256 public cost = 0.02 ether;
-    uint256 public whitelistedCost = 0.01 ether;
-    uint256 public referralCost = 0.01 ether;
-    uint256 public costToCreateReferral = 25 ether;
+    uint256 public cost = 0.05 ether;
+    uint256 public whitelistedCost = 0.04 ether;
+    uint256 public referralCost = 0.045 ether;
+    uint256 public costToCreateReferral = 0.01 ether;
 
     bool public paused = false;
     bool public revealed = false;
