@@ -22,13 +22,13 @@ Ownable {
 
     /// @notice edit these before launching contract
     /// @dev only ReferralRewardPercentage & costToCreateReferral is editable
-    uint8 public referralRewardPercentage = 15;
+    uint8 public referralRewardPercentage = 10;
     uint16 public nonce = 1;
-    uint16 constant public maxSupply = 10000;
-    uint256 public cost = 0.05 ether;
-    uint256 public whitelistedCost = 0.04 ether;
-    uint256 public referralCost = 0.045 ether;
-    uint256 public costToCreateReferral = 0.01 ether;
+    uint16 constant public maxSupply = 12;
+    uint256 public cost = 0.02 ether;
+    uint256 public whitelistedCost = 0.01 ether;
+    uint256 public referralCost = 0.01 ether;
+    uint256 public costToCreateReferral = 0.025 ether;
 
     bool public paused = false;
     bool public revealed = false;
@@ -39,8 +39,8 @@ Ownable {
 
     mapping(address => uint) public addressesReferred;
     mapping(address => bool) public whitelisted;
-    mapping(string => bool) public referralCodeIsTaken;
-    mapping(string => address) internal ownerOfCode;
+    mapping(string => bool) public codeIsTaken;
+    mapping(string => address) public ownerOfCode;
 
     constructor(string memory _name,
         string memory _symbol,
@@ -48,11 +48,10 @@ Ownable {
         string memory _unrevealedURI) ERC721(_name, _symbol) {
         setUnrevealedURI(_unrevealedURI);
         coFounder = _coFounder;
-        
-        /// @notice adds all possible IDs to mints[]. So you don't have to manually type thousands of numbers into an array
-        for (uint16 i = 0; i < maxSupply; ++i) {
-            mints[i] = i;
-        }
+    
+       for (uint16 i = 0; i < maxSupply; ++i) {
+           mints[i] = i;
+       }
     }
 
     modifier notPaused {
@@ -93,26 +92,24 @@ Ownable {
     /// @notice Chosen code (string) get's assigned to address. Whenever the code is used in mint, assigned address is paid
     function createRefferalCode(address _address, string memory _code) public payable notPaused {
         require(keccak256(abi.encodePacked(_code)) != keccak256(abi.encodePacked("")), "Referral Code can't be empty");
-        require(referralCodeIsTaken[_code] != true, "Referral Code is already taken");
+        require(!codeIsTaken[_code], "Referral Code is already taken");
 
         if (msg.sender != owner()) {
             require(msg.value >= costToCreateReferral, "Value should be equal or greater than ReferralCost");
         }
-
-        referralCodeIsTaken[_code] = true;
         ownerOfCode[_code] = _address;
     }
 
     /// @notice Seperate mint for Whitelisted addresses to not overdue on code complexity. Whitelisted mint allows for only 1 mint
     /// @dev Whitelist allows only 1 mint. After mint removeWhitelist function is called.
-    function whitelistedMint() public payable notPaused {
+     function whitelistedMint() public payable notPaused {
         require(whitelisted[msg.sender], "You are not whitelisted");
         uint256 supply = totalSupply();
         require(supply + 1 <= maxSupply);
         require(msg.value >= whitelistedCost);
         _removeWhitelist(msg.sender);
         _safeMint(msg.sender, findUnminted());
-    }
+    } 
 
     /// @notice mint function with referral code to give user discount and pay referral
     /// @dev function has an extra input - string. It is used for referral code. If the user does not put any code string looks like this "".
@@ -120,10 +117,10 @@ Ownable {
         uint256 supply = totalSupply();
         require(_mintAmount > 0);
         require(supply + _mintAmount <= maxSupply);
-        require(referralCodeIsTaken[_code] == true || keccak256(abi.encodePacked(_code)) == keccak256(abi.encodePacked("")), "Referral not valid, find a valid code or leave the string empty ");
+        require(codeIsTaken[_code] || keccak256(abi.encodePacked(_code)) == keccak256(abi.encodePacked("")), "Referral not valid, find a valid code or leave the string empty ");
 
         if (msg.sender != owner()) {
-            if (referralCodeIsTaken[_code] == true) {
+            if (codeIsTaken[_code]) {
                 require(ownerOfCode[_code] != msg.sender, "You can't referr yoursef");
                 require(msg.value >= (referralCost * _mintAmount), "ReferralMint: Not enough ether");
             } else {
@@ -135,7 +132,7 @@ Ownable {
             _safeMint(_to, findUnminted());
         }
 
-        if (referralCodeIsTaken[_code] == true) {
+        if (codeIsTaken[_code]) {
             payable(ownerOfCode[_code]).transfer(msg.value / 100 * referralRewardPercentage);
         }
     }
@@ -175,10 +172,10 @@ Ownable {
         costToCreateReferral = _cost;
     }
 
-    function setWhitelist(address _address) public onlyOwner {
+    /* function setWhitelist(address _address) public onlyOwner {
         require(whitelisted[_address] == false, "Address is whitelisted");
         whitelisted[_address] = true;
-    }
+    } */
 
     function freezeURI() public onlyOwner {
         frozenURI = true;
@@ -189,7 +186,7 @@ Ownable {
         baseURI = _newBaseURI;
     }
 
-    function setUnrevealedURI(string memory _unrevealedURI) public onlyOwner {
+     function setUnrevealedURI(string memory _unrevealedURI) public onlyOwner {
         require(!frozenURI, "URI is frozen");
         notRevealedUri = _unrevealedURI;
     }
