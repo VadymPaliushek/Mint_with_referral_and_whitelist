@@ -97,6 +97,7 @@ Ownable {
         if (msg.sender != owner()) {
             require(msg.value >= costToCreateReferral, "Value should be equal or greater than ReferralCost");
         }
+        codeIsTaken[_code] = true;
         ownerOfCode[_code] = _address;
     }
 
