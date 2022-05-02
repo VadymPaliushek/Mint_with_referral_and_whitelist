@@ -24,7 +24,7 @@ Ownable {
     /// @dev only ReferralRewardPercentage & costToCreateReferral is editable
     uint8 public referralRewardPercentage = 15;
     uint16 public nonce = 1;
-    uint16 constant public maxSupply = 12;
+    uint16 constant public maxSupply = 10000;
     uint256 public cost = 0.05 ether;
     uint256 public whitelistedCost = 0.045 ether;
     uint256 public referralCost = 0.045 ether;
