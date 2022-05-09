@@ -4,6 +4,7 @@ pragma solidity >= 0.7 .0 < 0.9 .0;
 
 /// @title BallisticFreaks contract
 /// @author Gustas K (ballisticfreaks@gmail.com)
+/// @note we won't have whitelisted mint in our release version. This is if someone want's to use it and have Whitelist option
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
